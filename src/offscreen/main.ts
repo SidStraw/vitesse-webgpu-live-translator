@@ -98,15 +98,16 @@ async function startCapture(streamId: string) {
     console.log('[Offscreen] Starting capture with stream ID:', streamId)
 
     // Create MediaStream from the stream ID
-    mediaStream = await navigator.mediaDevices.getUserMedia({
+    // Chrome-specific constraint for tab audio capture
+    const constraints: MediaStreamConstraints = {
       audio: {
-        // @ts-expect-error - Chrome-specific constraint
         mandatory: {
           chromeMediaSource: 'tab',
           chromeMediaSourceId: streamId,
         },
-      },
-    })
+      } as MediaTrackConstraints,
+    }
+    mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
 
     // Create audio context
     audioContext = new AudioContext({ sampleRate: 16000 })

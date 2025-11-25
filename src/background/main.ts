@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import type { Tabs } from 'webextension-polyfill'
+import '~/types/chrome.d.ts'
 
 // only on dev mode
 if (import.meta.hot) {
@@ -16,7 +17,7 @@ let offscreenDocumentCreated = false
 // Create or get offscreen document
 async function ensureOffscreenDocument() {
   // Check if offscreen document already exists
-  const existingContexts = await (chrome.runtime as any).getContexts({
+  const existingContexts = await chrome.runtime.getContexts({
     contextTypes: ['OFFSCREEN_DOCUMENT'],
     documentUrls: [chrome.runtime.getURL('dist/offscreen/index.html')],
   })
@@ -29,7 +30,7 @@ async function ensureOffscreenDocument() {
   // Create offscreen document
   if (!offscreenDocumentCreated) {
     try {
-      await (chrome.offscreen as any).createDocument({
+      await chrome.offscreen.createDocument({
         url: 'dist/offscreen/index.html',
         reasons: ['AUDIO_PLAYBACK', 'USER_MEDIA'],
         justification: 'Required for WebGPU-accelerated Whisper AI transcription and audio processing',
@@ -48,7 +49,7 @@ async function ensureOffscreenDocument() {
 async function _closeOffscreenDocument() {
   if (offscreenDocumentCreated) {
     try {
-      await (chrome.offscreen as any).closeDocument()
+      await chrome.offscreen.closeDocument()
       offscreenDocumentCreated = false
       console.log('[Background] Offscreen document closed')
     }
